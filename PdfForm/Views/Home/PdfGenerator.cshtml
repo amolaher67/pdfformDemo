@@ -1,0 +1,396 @@
+﻿
+@{
+    ViewData["Title"] = "PdfGenerator";
+}
+
+@model InitialLoadModel
+
+@{
+    ViewBag.Title = "Capture Details";
+}
+
+<style type="text/css">
+    .displayicon {
+        background-color: #414042;
+        height: 120px;
+        line-height: 175px;
+        text-align: center;
+    }
+
+    .cardcaption {
+        color: #fff !important;
+        text-align: center;
+    }
+
+    .thumbnail {
+        cursor: pointer;
+    }
+
+        .thumbnail:hover {
+            opacity: 0.8;
+        }
+
+    .cardicon, .cardiconcheck {
+        color: #fff;
+        font-size: 60px;
+    }
+
+    .selectableSubProduct.selected .cardicon {
+        display: none;
+    }
+
+    .selectableSubProduct.selected .cardiconcheck {
+        display: inline-block;
+    }
+
+    .selectableSubProduct.selected .cardcaption {
+        background-color: #205c94;
+    }
+
+    .selectableSubProduct .cardicon {
+        display: inline-block;
+    }
+
+    .selectableSubProduct .cardiconcheck {
+        display: none;
+    }
+
+    .selectableSubProduct .cardcaption {
+        background-color: #fdbb30;
+    }
+
+    .subheader {
+        color: #999999
+    }
+
+    .capturelabel {
+        font-size: 11px;
+        margin-bottom: 0px;
+    }
+
+    .field-validation-error {
+        color: @ViewBag.Color;
+        font-size: 11px;
+    }
+
+    h4 {
+        color: @ViewBag.Color
+    }
+
+    /*.validation-summary-errors {
+        background-color: #FFBABA;
+        padding: 10px;
+        border: 1px solid;
+        color: #D8000C;
+        font-size: 12px;
+    }
+
+    .validation-summary-errors span {
+        margin-bottom: 10px;
+    display: block;
+    font-weight: bold;
+    }    */
+
+    .validation-summary-errors li {
+    }
+
+
+    .validation-summary-errors ul {
+        list-style: none;
+        margin-left: 0px;
+        padding-left: 0px;
+    }
+
+    #error div {
+        color: @ViewBag.Color;
+        font-size: 11px;
+    }
+</style>
+
+@using (Html.BeginForm("PdfGenerator", "Home", FormMethod.Post, new { autocomplete = "off", id = "FrmInitialLoad" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.SelectedSubProductId)
+
+    <div class="row basicCapture">
+        <div class="col-md-12">
+            @Html.ValidationSummary(true, "An Error occured while trying to process your request." + Environment.NewLine, new { @class = "alert alert-danger" })
+        </div>
+        <div class="col-md-4">
+            <div>
+                <h4>Personal Information</h4>
+            </div>
+            <div class="form-group-sm">
+                <label class="capturelabel" for="Initials">Initials</label>
+                @Html.TextBoxFor(m => m.Initials, new { @class = "lettersOnly form-control", maxlength = "5", style = "width: 50px;" })
+                @Html.ValidationMessageFor(m => m.Initials)
+            </div>
+            <div class="form-group-sm">
+                <label class="capturelabel" for="Surname">Surname</label>
+                @Html.TextBoxFor(m => m.Surname, new { @class = "lettersOnlyHyphen form-control", maxlength = "30" })
+                @Html.ValidationMessageFor(m => m.Surname)
+            </div>
+            <div class="form-group-sm">
+                <label class="capturelabel" for="IDNumber">South African ID Number</label>
+                @Html.TextBoxFor(m => m.IDNumber, new { @class = "numbersOnly form-control", maxlength = "13" })
+                @Html.ValidationMessageFor(m => m.IDNumber)
+                <div id="error"></div>
+            </div>
+            <div class="form-group-sm">
+                <label class="capturelabel" for="EmailAddress">Email Address</label>
+                @Html.TextBoxFor(m => m.EmailAddress, new { @class = "form-control", maxlength = "100" })
+                @Html.ValidationMessageFor(m => m.EmailAddress)
+            </div>
+            <div class="form-group-sm">
+                <label class="capturelabel" for="ContactNumber">Contact Number</label>
+                @Html.TextBoxFor(m => m.ContactNumber, new { @class = "numbersOnly form-control", maxlength = "11" })
+                @Html.ValidationMessageFor(m => m.ContactNumber)
+            </div>
+            <div class="form-group-sm">
+                <label class="capturelabel" for="GrossMonthlyIncome">Gross Monthly Salary</label>
+                @Html.TextBoxFor(m => m.GrossMonthlyIncome, new { data_val_number = "Gross Monthly Income must be a valid number.", @class = "form-control ", Value = $"{Model.GrossMonthlyIncome:0.00}", maxlength = "10" })
+                @Html.ValidationMessageFor(m => m.GrossMonthlyIncome)
+            </div>
+            <p style="margin-top: 20px; max-width: 280px;">
+                <input type="button" value="Clear" id="btn_back" class="btn btn-default" style="float: right; margin-left: 10px;" />
+            </p>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-12" style="width : 750px">
+            <div>
+                <h4>Legal Questions</h4>
+            </div>
+            <table class="table_agreement">
+                <tr>
+                    <td><label class="capturelabel"></label></td>
+                    <td class="rowinput" style="width: 40px">Yes</td>
+                    <td class="rowinput" style="width: 30px">No</td>
+                </tr>
+                <tr>
+                    <td><label class="capturelabel">Are you currently under Debt Review or are you intending on applying for Debt Review?</label>
+                    <td class="rowinput" style="width: 40px">@Html.RadioButtonFor(m => m.ApplicantCreditEvaluation2, true, htmlAttributes: new { @id = "Evaluation2_1" })
+                    <td class="rowinput" style="width: 30px">@Html.RadioButtonFor(m => m.ApplicantCreditEvaluation2, false, htmlAttributes: new { @id = "Evaluation2_2" })
+                </tr>
+                <tr>
+                    <td><label class="capturelabel">Have you been placed under curatorship, or is there an application to place you under curatorship pending against you?&nbsp;&nbsp;&nbsp;</label></td>
+                    <td class="rowinput" style="width: 40px">@Html.RadioButtonFor(m => m.ApplicantCreditEvaluation11, true, htmlAttributes: new { @id = "Evaluation11_1" })
+                    <td class="rowinput" style="width: 30px">@Html.RadioButtonFor(m => m.ApplicantCreditEvaluation11, false, htmlAttributes: new { @id = "Evaluation11_2" })
+                </tr>
+                <tr>
+                    <td><label class="capturelabel">Are you currently under sequestration order or is an application pending against you?</label></td>
+                    <td class="rowinput" style="width: 40px">@Html.RadioButtonFor(m => m.ApplicantCreditEvaluation5, true, htmlAttributes: new { @id = "Evaluation5_1" })
+                    <td class="rowinput" style="width: 30px">@Html.RadioButtonFor(m => m.ApplicantCreditEvaluation5, false, htmlAttributes: new { @id = "Evaluation5_2" })
+                </tr>
+                <tr>
+                    <td><label class="capturelabel">Have you ever been placed under administration or are you currently applying to be placed under administration?</label></td>
+                    <td class="rowinput" style="width: 40px">@Html.RadioButtonFor(m => m.ApplicantCreditEvaluation3, true, htmlAttributes: new { @id = "Evaluation3_1" })
+                    <td class="rowinput" style="width: 30px">@Html.RadioButtonFor(m => m.ApplicantCreditEvaluation3, false, htmlAttributes: new { @id = "Evaluation3_2" })
+                </tr>
+            </table>
+            <div class="col-md-6 col-sm-6 col-xs-12" style="float: right; width : 750px">
+                <p style="margin-top: 20px;">
+                    <input type="submit" value="Submit" id="btn_submit" class="btn btn-success" disabled="disabled" style="float: right; margin-left: 10px;" />
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="LegalQesAppProcessing" style="display: none;">
+        <div class="col-md-12">
+            <p>Before continuing, please ensure that you have completed all questions correctly.</p>
+            <p style="margin-top: 20px; max-width: 280px;">
+                <input type="button" value="Back" id="btnCancelContinue" class="btn btn-default" style="float: left" />
+                <input type="submit" value="Continue" id="btnConApplication" class="btn btn-success" style="margin-left: 10px;" />
+            </p>
+        </div>
+    </div>
+}
+
+
+@section scripts
+    {
+
+    <script type="text/javascript">
+
+        function Validate() {
+            // first clear any left over error messages
+            $('#error div').remove();
+
+            // store the error div, to save typing
+            var error = $('#error');
+
+            var idNumber = $('#IDNumber').val();
+
+            // assume everything is correct and if it later turns out not to be, just set this to false
+            var correct = true;
+
+            //Ref: http://www.sadev.co.za/content/what-south-african-id-number-made
+            // SA ID Number have to be 13 digits, so check the length
+            if (idNumber.length != 13 || !isNumber(idNumber)) {
+                /*error.append('<p>ID number does not appear to be authentic - input not a valid number</p>');*/
+                error.append('<div>Invalid South African ID Number - input not a valid ID Number</div>');
+                correct = false;
+            }
+
+            // get first 6 digits as a valid date
+            var tempDate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+
+            var id_date = tempDate.getDate();
+            var id_month = tempDate.getMonth();
+            var id_year = tempDate.getFullYear();
+
+            var fullDate = id_date + "-" + (id_month + 1) + "-" + id_year;
+
+            if (!((tempDate.getYear() == idNumber.substring(0, 2)) &&
+                (id_month == idNumber.substring(2, 4) - 1) &&
+                (id_date == idNumber.substring(4, 6)))) {
+                /*error.append('<p>ID number does not appear to be authentic - date part not valid</p>');*/
+                if (correct) {
+                    error.append('<div>Invalid South African ID Number - date part not valid</div>');
+                }
+
+                correct = false;
+            }
+
+            // get the gender
+            var genderCode = idNumber.substring(6, 10);
+            var gender = parseInt(genderCode) < 5000 ? "Female" : "Male";
+
+            // get country ID for citzenship
+            var citzenship = parseInt(idNumber.substring(10, 11)) == 0 ? "Yes" : "No";
+
+            // apply Luhn formula for check-digits
+            var tempTotal = 0;
+            var checkSum = 0;
+            var multiplier = 1;
+            for (var i = 0; i < 13; ++i) {
+                tempTotal = parseInt(idNumber.charAt(i)) * multiplier;
+                if (tempTotal > 9) {
+                    tempTotal = parseInt(tempTotal.toString().charAt(0)) + parseInt(tempTotal.toString().charAt(1));
+                }
+                checkSum = checkSum + tempTotal;
+                multiplier = (multiplier % 2 == 0) ? 1 : 2;
+            }
+            if ((checkSum % 10) != 0) {
+                /*error.append('<p>ID number does not appear to be authentic - check digit is not valid</p>');*/
+                if (correct) {
+                    error.append('<div>Invalid South African ID Number - checksum invalid</div>');
+                }
+                correct = false;
+            };
+
+
+            // if no error found, hide the error message
+            if (correct) {
+                error.css('display', 'none');
+
+                // clear the result div
+                $('#result').empty();
+                // and put together a result message
+                $('#result')
+                    .append('<p>South African ID Number:   ' +
+                        idNumber +
+                        '</p><p>Birth Date:   ' +
+                        fullDate +
+                        '</p><p>Gender:  ' +
+                        gender +
+                        '</p><p>SA Citizen:  ' +
+                        citzenship +
+                        '</p>');
+                return true;
+            }
+            // otherwise, show the error
+            else {
+                error.css('display', 'block');
+            }
+
+            return false;
+        }
+
+        function isNumber(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+
+        //$('#FrmInitialLoad').submit(Validate);
+
+
+        $(document)
+            .ready(function () {
+               
+                $("#IDNumber")
+                    .on('blur',
+                        function () {
+                            Validate();
+                        });
+                
+
+                $("#Evaluation2_1, #Evaluation2_2, #Evaluation3_1, #Evaluation3_2, #Evaluation5_1, #Evaluation5_2, #Evaluation11_1, #Evaluation11_2")
+                    .change(function () {
+
+                        if (($('#Evaluation2_1').is(':checked') || $('#Evaluation2_2').is(':checked')) &&
+                            ($('#Evaluation3_1').is(':checked') || $('#Evaluation3_2').is(':checked')) &&
+                            ($('#Evaluation5_1').is(':checked') || $('#Evaluation5_2').is(':checked')) &&
+                            ($('#Evaluation11_1').is(':checked') || $('#Evaluation11_2').is(':checked'))) {
+                            $("#btn_submit").removeAttr('disabled');
+
+                        } else {
+                            $("#btn_submit").attr('disabled', 'disabled');
+                        }
+                    });
+
+                $("#btn_back")
+                    .click(function () {
+                        $('#FrmInitialLoad').validate().resetForm();
+                        $("input[type=text]").val('');
+                        $("#FrmInitialLoad").find('.field-validation-error span').html('');
+                        $('#error').empty();
+                        $("#Evaluation2_1").prop('checked', false);
+                        $("#Evaluation2_2").prop('checked', false);
+                        $("#Evaluation3_1").prop('checked', false);
+                        $("#Evaluation3_2").prop('checked', false);
+                        $("#Evaluation5_1").prop('checked', false);
+                        $("#Evaluation5_2").prop('checked', false);
+                        $("#Evaluation11_1").prop('checked', false);
+                        $("#Evaluation11_2").prop('checked', false);
+                        $("#btn_submit").attr('disabled', 'disabled');
+                    });
+
+                $("#btnConApplication")
+                    .click(function (evt) {
+                        evt.preventDefault();
+                        var IdValid = Validate();
+                        var formValid = $("#FrmInitialLoad").valid();
+
+                        if ((IdValid) && (formValid)) {
+                            $("#FrmInitialLoad").submit();
+                        }
+                    });
+
+                $("#btnCancelContinue").on('click', function () {
+                    $("#LegalQesAppProcessing").hide('slide', { direction: 'left' }, 300, function () {
+                        $(".basicCapture").show('slide', { direction: 'left' }, 300);
+                    });
+                });
+
+                //$("#btn_submit")
+                //    .click(function (evt) {
+                //        evt.preventDefault();
+                //        var IdValid = Validate();
+                //        var formValid = $("#FrmInitialLoad").valid();
+
+                //        if ((IdValid) && (formValid)) {
+
+                //            $(".basicCapture")
+                //                .hide('slide',
+                //                    { direction: 'left' },
+                //                    300,
+                //                    function () {
+                //                        $("#LegalQesAppProcessing").show('slide', { direction: 'left' }, 300);
+                //                    });
+                //        }
+                //    });
+            });
+
+
+    </script>
+}
+
+

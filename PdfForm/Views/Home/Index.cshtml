@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="row">
+    <div class="col">
+        <form id="id_postFormDetails">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Step 1 .</label> <a href="~/Download/form.pdf" download>Download Template to fill locally and submit again</a>
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="fileuploadcontrol">Step 2. upload file here</label>
+                <input id="fileuploadcontrol" type="file" class="form-control-file" required="*" />
+
+            </div>
+            <button type="button" class="btn btn-primary" onclick="uploadFile();">Submit</button>
+        </form>
+    </div>
+</div>
+<div style="height: 10px;"></div>
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                Form Filled
+            </div>
+            <div class="card-body">
+                <table id="myTable" class="table  table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Field Name</th>
+                            <th>Field Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Name</td>
+                            <td>Name</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+
+        "use strict";
+
+        $(document).ready(function() {
+
+        });
+
+        function uploadFile() {
+
+            const fileinput = $("#fileuploadcontrol");
+
+            if (fileinput === undefined || fileinput === null || fileinput.length === 0) {
+                alert('please select file first');
+                return false;
+            }
+
+            const files = fileinput[0].files;
+
+
+            if (files === undefined || files === null || files.length === 0) {
+                alert('please select file first');
+                return false;
+            }
+
+            let formData = new FormData();
+
+            for (var i = 0; i !== files.length; i++) {
+                formData.append("files", files[i]);
+            }
+
+            $.ajax(
+                {
+                    url: '@Url.Action("Uploader", "Home")',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: "json",
+                    cache: false,
+                    type: "POST",
+                    success: function(data) {
+
+                        alert("Files Uploaded!");
+
+                        if (data !== null && data !== undefined && data.length > 0)
+                            data.forEach(
+                                item => {
+                                    $('#myTable > tbody:last-child')
+                                        .append(`<tr><td>${item.key}</td><td>${item.value}</td></tr>`);
+                                }
+                            );
+                    },
+                    error: function(error) {
+                        alert(`error:${eval(error)}`);
+                    }
+                });
+        }
+    </script>
+}
