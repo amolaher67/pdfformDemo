@@ -1,0 +1,129 @@
+﻿
+@{
+    ViewData["Title"] = "OCrTest";
+}
+
+<h1>OCrTest</h1>
+
+<div class="row">
+    <div class="col">
+        <form id="id_postOCRFormDetails">
+
+            <div class="form-group">
+
+                <label for="fileuploadcontrol">upload file here</label>
+                <input id="fileuploadcontrol" type="file" class="form-control-file" required="*" />
+
+            </div>
+            <button id="btnSubmit" type="button" class="btn btn-primary" onclick="uploadFile();">
+                <span id="spinnersumbit" class=" spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display:none"></span>
+                Submite
+            </button>
+
+        </form>
+    </div>
+</div>
+<div style="height:10px"></div>
+<div class="row">
+    <div class="col card">
+        <div class="card-body" id="responseDiv"></div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script type="text/javascript">
+
+        "use strict";
+
+        function uploadFile() {
+
+            try {
+
+
+                $("#btnSubmit").attr("disabled", true);
+
+                const fileinput = $("#fileuploadcontrol");
+
+                if (fileinput === undefined || fileinput === null || fileinput.length === 0) {
+                    alert('please select file first');
+                    $("#btnSubmit").attr("disabled", false);
+                    $("#spinnersumbit").css("display", "none");
+                    return false;
+                }
+
+                const files = fileinput[0].files;
+
+                if (files === undefined || files === null || files.length === 0) {
+                    alert('please select file first');
+                    $("#btnSubmit").attr("disabled", false);
+                    return false;
+                }
+
+                $("#spinnersumbit").css("display", "inline-block");
+                let formData = new FormData();
+
+                for (var i = 0; i !== files.length; i++) {
+                    formData.append("image", files[i]);
+                }
+
+                formData.append("Type", "SA_DL");
+
+                var settings = {
+                    "async": true,
+                    "crossDomain": true,
+                    "url": "http://52.172.133.91:5023/show",
+                    "method": "POST",
+                    "headers": {
+                        "cache-control": "no-cache",
+                        "Postman-Token": "0b2b8d5e-ac04-420e-96e7-ee60806a75a9",
+                        "Access-Control-Allow-Origin": "http://localhost:55073"
+                    },
+                    "processData": false,
+                    "contentType": false,
+                    "mimeType": "multipart/form-data",
+                    "data": formData
+                };
+
+                $.ajax(settings).done(function (response) {
+                    $("#responseDiv").html(JSON.stringify(response));
+                    FormToggle()
+                }).fail(function (xhr, status, error) {
+                     alert("Something Went Wrong : "xhr.responseText);
+                     FormToggle();
+                });
+
+
+                @* $.ajax(
+                    {
+                        url: '@Url.Action("OCrTest", "Home")',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        dataType: "json",
+                        cache: false,
+                        type: "POST",
+                        "mimeType": "multipart/form-data",
+                        success: function (data) {
+                            $("#responseDiv").html(JSON.stringify(data));
+                        },
+                        error: function (xhr, status, error) {
+                            $("#responseDiv").html(JSON.stringify(data));
+                        }
+                    });*@
+
+
+            }catch (e) {
+                alert(e);
+            }
+
+        }
+
+        function FormToggle() {
+            $("#btnSubmit").attr("disabled", false);
+                    $("#spinnersumbit").css("display", "none");
+        }
+
+    </script>
+}
